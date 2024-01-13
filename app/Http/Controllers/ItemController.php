@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Item;
+use Illuminate\Support\Carbon;
 
 class ItemController extends Controller
 {
@@ -11,7 +13,7 @@ class ItemController extends Controller
      */
     public function index()
     {
-        //
+        return Item::orderBy('created_at', 'DESC')->get();
     }
 
     /**
@@ -27,7 +29,11 @@ class ItemController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $newItem = new Item;
+        $newItem->name = $request->item["name"];
+        $newItem->save();
+
+        return $newItem;
     }
 
     /**
@@ -51,7 +57,18 @@ class ItemController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $existingItem = Item::find($id);
+
+        if ($existingItem) {
+            // Check the item, if it's true change it to false, if it false change it to true
+            $existingItem->completed = $request->item['completed'] ? true : false;
+            //Set the date and time for completed item
+            $existingItem->completed_at = $request->item['completed'] ? Carbon::now() : null;
+            $existingItem->save();
+            return $existingItem;
+        }
+
+        return "Item not found";
     }
 
     /**
